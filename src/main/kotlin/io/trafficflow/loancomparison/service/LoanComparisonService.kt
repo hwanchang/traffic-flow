@@ -7,12 +7,10 @@ import io.trafficflow.loancomparison.client.data.ProductFeignResponse
 import io.trafficflow.loancomparison.domain.LoanComparison
 import io.trafficflow.loancomparison.repository.LoanComparisonRepository
 import jakarta.persistence.EntityNotFoundException
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -27,6 +25,7 @@ class LoanComparisonService(
     @Value("\${kafka.topic.loan-comparison}")
     private val loanComparisonTopic: String,
 ) {
+    @Async
     fun compare(userId: Long) = partnerFeignClient.getAllOpenPartners()
         .asSequence()
         .map(PartnerFeignResponse::toDomain)
@@ -40,31 +39,17 @@ class LoanComparisonService(
     @Transactional(readOnly = true)
     fun get(id: Long) = loanComparisonRepository.findByIdOrNull(id) ?: throw EntityNotFoundException()
 
+    @Async
     @Transactional
     fun accepted(id: Long) {
-        runBlocking {
-            withContext(IO) {
-                loanComparisonRepository.findByIdOrNull(id)
-                    ?.also {
-                        it.accepted()
-                        loanComparisonRepository.save(it)
-                    }
-                    ?: throw EntityNotFoundException("${id}: 대출비교가 없습니다.")
-            }
-        }
+        loanComparisonRepository.findByIdOrNull(id)?.accepted()
+            ?: throw EntityNotFoundException("${id}: 대출비교가 없습니다.")
     }
 
+    @Async
     @Transactional
     fun rejected(id: Long) {
-        runBlocking {
-            withContext(IO) {
-                loanComparisonRepository.findByIdOrNull(id)
-                    ?.also {
-                        it.rejected()
-                        loanComparisonRepository.save(it)
-                    }
-                    ?: throw EntityNotFoundException("${id}: 대출비교가 없습니다.")
-            }
-        }
+        loanComparisonRepository.findByIdOrNull(id)?.rejected()
+            ?: throw EntityNotFoundException("${id}: 대출비교가 없습니다.")
     }
 }
