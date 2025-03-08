@@ -8,8 +8,8 @@ import io.trafficflow.loancomparison.domain.LoanComparison
 import io.trafficflow.loancomparison.repository.LoanComparisonRepository
 import jakarta.persistence.EntityNotFoundException
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.kafka.core.KafkaTemplate
@@ -42,9 +42,13 @@ class LoanComparisonService(
 
     @Transactional
     fun accepted(id: Long) {
-        runBlocking(IO) {
-            launch {
-                loanComparisonRepository.findByIdOrNull(id)?.accepted()
+        runBlocking {
+            withContext(IO) {
+                loanComparisonRepository.findByIdOrNull(id)
+                    ?.also {
+                        it.accepted()
+                        loanComparisonRepository.save(it)
+                    }
                     ?: throw EntityNotFoundException("${id}: 대출비교가 없습니다.")
             }
         }
@@ -52,9 +56,13 @@ class LoanComparisonService(
 
     @Transactional
     fun rejected(id: Long) {
-        runBlocking(IO) {
-            launch {
-                loanComparisonRepository.findByIdOrNull(id)?.rejected()
+        runBlocking {
+            withContext(IO) {
+                loanComparisonRepository.findByIdOrNull(id)
+                    ?.also {
+                        it.rejected()
+                        loanComparisonRepository.save(it)
+                    }
                     ?: throw EntityNotFoundException("${id}: 대출비교가 없습니다.")
             }
         }
