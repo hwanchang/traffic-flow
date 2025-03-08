@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: traffic-flow
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: ${REDIS_USERNAME}
+      password: ${REDIS_PASSWORD}
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${MYSQL_HOST}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    url: ${MYSQL_HOST}
+    user: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+        use_sql_comments: true
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS}
+    security:
+      protocol: PLAINTEXT
+
+jwt:
+  issuer: traffic-flow
+  secret: ${JWT_SECRET}
+  accessTokenExpireMinute: 120
+  refreshTokenExpireMinute: 10080
+  domain: 'localhost'
+
+internal-api-key: traffic-flow
+
+feign:
+  url: http://localhost:8080
+
+kafka:
+  rate-limiter:
+    count: 1000
+  topic:
+    loan-comparison: loan-comparison
+  group:
+    loan-comparison: loan-comparison
+
+resilience4j.circuitbreaker:
+  instances:
+    partner-connector:
+      registerHealthIndicator: true
+      slidingWindowSize: 200
+      minimumNumberOfCalls: 100
+      permittedNumberOfCallsInHalfOpenState: 3
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10s
+
+management:
+  endpoints:
+    access:
+      default: read_only
+  endpoint:
+    health:
+      access: read_only
