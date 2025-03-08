@@ -33,7 +33,7 @@ class LoanComparisonService(
         .flatMap { partnerFeignClient.getAllOpenProducts(it.id) }
         .map(ProductFeignResponse::toDomain)
         .map { LoanComparison(userId = userId, partnerId = it.id, productId = it.productId) }
-        .onEach { loanComparisonRepository.save(it) }
+        .onEach(loanComparisonRepository::save)
         .map { KafkaMessage(body = it.id) }
         .forEach { kafkaMessageKafkaTemplate.send(loanComparisonTopic, it) }
 
