@@ -1,13 +1,13 @@
 package io.trafficflow.common.authentication.jwt
 
-import io.trafficflow.common.domain.Token
-import io.trafficflow.configuration.security.JwtConfiguration
-import io.trafficflow.user.domain.Role
-import io.trafficflow.user.service.UserService
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
+import io.trafficflow.common.domain.Token
+import io.trafficflow.configuration.security.JwtConfiguration
+import io.trafficflow.user.domain.Role
+import io.trafficflow.user.service.UserService
 import java.util.Date
 import org.springframework.context.annotation.Configuration
 

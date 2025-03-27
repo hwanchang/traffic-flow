@@ -1,9 +1,9 @@
 package io.trafficflow.configuration.kafka
 
-import io.trafficflow.common.event.EventFailover
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.trafficflow.common.event.EventFailover
 import java.io.Serializable
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now

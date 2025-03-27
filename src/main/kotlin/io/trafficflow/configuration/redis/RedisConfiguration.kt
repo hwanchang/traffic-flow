@@ -1,8 +1,8 @@
 package io.trafficflow.configuration.redis
 
-import io.trafficflow.common.event.EventFailover
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.trafficflow.common.event.EventFailover
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
