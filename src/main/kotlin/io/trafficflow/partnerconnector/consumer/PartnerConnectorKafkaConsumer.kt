@@ -6,7 +6,9 @@ import io.trafficflow.configuration.kafka.KafkaMessage
 import io.trafficflow.partnerconnector.service.PartnerConnectorService
 import io.trafficflow.partnerconnector.service.RateLimiter
 import java.time.LocalDateTime.now
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.KafkaHeaders.DLT_EXCEPTION_MESSAGE
 import org.springframework.kafka.support.KafkaHeaders.DLT_EXCEPTION_STACKTRACE
 import org.springframework.kafka.support.KafkaHeaders.DLT_ORIGINAL_TOPIC
@@ -21,6 +23,11 @@ class PartnerConnectorKafkaConsumer(
     private val partnerConnectorService: PartnerConnectorService,
 
     private val eventFailoverHandler: EventFailoverHandler,
+
+    private val kafkaMessageKafkaTemplate: KafkaTemplate<String, KafkaMessage>,
+
+    @Value("\${kafka.topic.loan-comparison}")
+    private val loanComparisonTopic: String,
 ) {
     @KafkaListener(
         topics = ["\${kafka.topic.loan-comparison}"],
@@ -29,6 +36,7 @@ class PartnerConnectorKafkaConsumer(
     )
     fun compare(@Payload kafkaMessage: KafkaMessage) {
         if (rateLimiter.isLimited(kafkaMessage)) {
+            kafkaMessageKafkaTemplate.send(loanComparisonTopic, kafkaMessage)
             return
         }
 
